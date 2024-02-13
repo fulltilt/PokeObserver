@@ -7,14 +7,14 @@ const Searchbar = () => {
   const [searchPrompt, setSearchPrompt] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const isValidAmazonProductURL = (url: string) => {
+  const isValidTCGPlayerProductURL = (url: string) => {
     try {
       const parsedURL = new URL(url);
       const hostname = parsedURL.hostname;
 
       if (
-        hostname.includes("amazon.com") ||
-        hostname.includes("amazon." || hostname.endsWith("amazon"))
+        hostname.includes("tcgplayer.com") ||
+        hostname.includes("tcgplayer." || hostname.endsWith("tcgplayer"))
       ) {
         return true;
       }
@@ -27,9 +27,9 @@ const Searchbar = () => {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const isValidLink = isValidAmazonProductURL(searchPrompt);
+    const isValidLink = isValidTCGPlayerProductURL(searchPrompt);
 
-    if (!isValidLink) return alert("Please provide a valid Amazon link");
+    if (!isValidLink) return alert("Please provide a valid TCG Player link");
 
     try {
       setIsLoading(true);
@@ -48,8 +48,8 @@ const Searchbar = () => {
         value={searchPrompt}
         onChange={(e) => setSearchPrompt(e.target.value)}
         type="text"
-        placeholder="Enter Product Link"
-        className="searchbar-input"
+        placeholder="Enter TCG Player link"
+        className="searchbar-input mr-4"
       />
       <button
         type="submit"

@@ -13,7 +13,7 @@ const Home = async () => {
         <div className="flex max-xl:flex-col gap-16">
           <div className="flex flex-col justify-center">
             <p className="small-text">
-              Smart Shopping Starts Here:
+              Smarter Collecting Starts Here:
               <Image
                 src="/assets/icons/arrow-right.svg"
                 alt="arrow-right"
@@ -28,14 +28,14 @@ const Home = async () => {
             </h1>
 
             <p className="mt-6">
-              Powerful, self-serve product and growth analytics to help you
-              convert, engage, and retain more.
+              Track prices of cards of interest and get alerts when the price
+              drops.
             </p>
 
             <Searchbar />
           </div>
 
-          <HeroCarousel />
+          {/* <HeroCarousel /> */}
         </div>
       </section>
 

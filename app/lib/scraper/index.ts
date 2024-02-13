@@ -1,80 +1,71 @@
-import axios from "axios";
 import * as cheerio from "cheerio";
-import { extractCurrency, extractDescription, extractPrice } from "../utils";
+import playwright from "playwright";
 
-export async function scrapeAmazonProduct(url: string) {
+export async function scrapeTCGPlayerProduct(url: string) {
   if (!url) return;
 
   //   Brightdata
-  const username = String(process.env.BRIGHT_DATA_USERNAME);
-  const password = String(process.env.BRIGHT_DATA_PASSWORD);
-  const port = 22225;
-  const session_id = (1000000 * Math.random()) | 0;
-  const options = {
-    auth: {
-      username: `${username}-session-${session_id}`,
-      password,
-    },
-    host: "brd.superproxy.io",
-    port,
-    rejectUnauthorized: false,
-  };
+  // const username = String(process.env.BRIGHT_DATA_USERNAME);
+  // const password = String(process.env.BRIGHT_DATA_PASSWORD);
+  // const port = 22225;
+  // const session_id = (1000000 * Math.random()) | 0;
+  // const options = {
+  //   auth: {
+  //     username: `${username}-session-${session_id}`,
+  //     password,
+  //   },
+  //   host: "brd.superproxy.io",
+  //   port,
+  //   rejectUnauthorized: false,
+  // };
 
   try {
     // Fetch the product page
-    const response = await axios.get(url, options);
-    const $ = cheerio.load(response.data);
+    // const response = await axios.get(url, options);
+    // const $ = cheerio.load(await response.data);
+    const browser = await playwright.chromium.launch({ headless: true });
+    const page = await browser.newPage();
 
-    // Extract the product title
-    const title = $("#productTitle").text().trim();
-    const currentPrice = extractPrice(
-      $(".priceToPay span.a-price-whole"),
-      $(".a.size.base.a-color-price"),
-      $(".a-button-selected .a-color-base")
-    );
+    // Navigate to the website
+    await page.goto(url);
+    await page.waitForTimeout(2000);
+    // const title = await page.getByTestId("lblProductDetailsProductName");
 
-    const originalPrice = extractPrice(
-      $("#priceblock_ourprice"),
-      $(".a-price.a-text-price span.a-offscreen"),
-      $("#listPrice"),
-      $("#priceblock_dealprice"),
-      $(".a-size-base.a-color-price")
-    );
+    const content = await page.content();
+    const $ = cheerio.load(content);
+    const title = $(".product-details__name").text().trim();
 
-    const outOfStock =
-      $("#availability span").text().trim().toLowerCase() ===
-      "currently unavailable";
+    let imageUrl = "";
+    $(".v-lazy-image-loaded").each((_, val) => {
+      imageUrl = val.attribs.src;
+    });
 
-    const images =
-      $("#imgBlkFront").attr("data-a-dynamic-image") ||
-      $("#landingImage").attr("data-a-dynamic-image") ||
-      "{}";
+    let marketPrice = 0;
+    const table = $(".price-guide__points table");
+    table.find("tr").each((i, row) => {
+      let foundMarketPriceRow = false;
+      $(row)
+        .find("td, th")
+        .each((j, cell) => {
+          if ($(cell).text().trim() === "Market Price")
+            foundMarketPriceRow = true;
+          if (foundMarketPriceRow && j === 1) {
+            marketPrice = parseFloat($(cell).text().slice(1));
+            return;
+          }
+        });
+    });
 
-    const imageUrls = Object.keys(JSON.parse(images));
-
-    const currency = extractCurrency($(".a-price-symbol"));
-    const discountRate = $(".savingsPercentage").text().replace(/[-%]/g, "");
-
-    const description = extractDescription($);
-
-    // Construct data object with scraped information
+    // // Construct data object with scraped information
     const data = {
       url,
-      currency: currency || "$",
-      image: imageUrls[0],
+      image: imageUrl,
       title,
-      currentPrice: Number(currentPrice) || Number(originalPrice),
-      originalPrice: Number(originalPrice) || Number(currentPrice),
+      currentPrice: Number(marketPrice),
       priceHistory: [],
-      discountRate: Number(discountRate),
-      category: "category",
-      reviewsCount: 100,
-      stars: 4.5,
-      isOutOfStock: outOfStock,
-      description,
-      lowestPrice: Number(currentPrice) || Number(originalPrice),
-      highestPrice: Number(originalPrice) || Number(currentPrice),
-      averagePrice: Number(currentPrice) || Number(originalPrice),
+      lowestPrice: Number(marketPrice),
+      highestPrice: Number(marketPrice),
+      averagePrice: Number(marketPrice),
     };
 
     return data;

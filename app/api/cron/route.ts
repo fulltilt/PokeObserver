@@ -8,7 +8,7 @@ import {
 } from "@/app/lib/utils";
 import { connectToDB } from "@/app/lib/mongoose";
 import Product from "@/app/lib/models/product.model";
-import { scrapeAmazonProduct } from "@/app/lib/scraper";
+import { scrapeTCGPlayerProduct } from "@/app/lib/scraper";
 import { generateEmailBody, sendEmail } from "@/app/lib/nodemailer";
 
 export const maxDuration = 10; // This function can run for a maximum of 300 seconds
@@ -27,7 +27,7 @@ export async function GET(request: Request) {
     const updatedProducts = await Promise.all(
       products.map(async (currentProduct) => {
         // Scrape product
-        const scrapedProduct = await scrapeAmazonProduct(currentProduct.url);
+        const scrapedProduct = await scrapeTCGPlayerProduct(currentProduct.url);
 
         if (!scrapedProduct) return;
 
