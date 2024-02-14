@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 const productSchema = new mongoose.Schema(
   {
     url: { type: String, required: true, unique: true },
-    currency: { type: String, required: true },
     image: { type: String, required: true },
     title: { type: String, required: true },
     currentPrice: { type: Number, required: true },
@@ -16,7 +15,6 @@ const productSchema = new mongoose.Schema(
     lowestPrice: { type: Number },
     highestPrice: { type: Number },
     averagePrice: { type: Number },
-    description: { type: String },
     users: [{ email: { type: String, required: true } }],
     default: [],
   },

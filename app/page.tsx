@@ -28,8 +28,8 @@ const Home = async () => {
             </h1>
 
             <p className="mt-6">
-              Track prices of cards of interest and get alerts when the price
-              drops.
+              Track prices of cards of interest on TCG Player and get alerts
+              when the price drops.
             </p>
 
             <Searchbar />
