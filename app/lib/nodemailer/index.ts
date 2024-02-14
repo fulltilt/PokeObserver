@@ -63,16 +63,6 @@ export async function generateEmailBody(
       `;
       break;
 
-    case Notification.THRESHOLD_MET:
-      subject = `Discount Alert for ${shortenedTitle}`;
-      body = `
-        <div>
-          <h4>Hey, ${product.title} is now available at a discount more than ${THRESHOLD_PERCENTAGE}%!</h4>
-          <p>Grab it right away from <a href="${product.url}" target="_blank" rel="noopener noreferrer">here</a>.</p>
-        </div>
-      `;
-      break;
-
     default:
       throw new Error("Invalid notification type.");
   }
